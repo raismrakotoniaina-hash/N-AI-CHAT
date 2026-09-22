@@ -1,79 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mg">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>N-AI Chat</title>
+    <title>N-AI Chat & Image</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #000814; color: white; }
-        .chat-bubble-ai { background: #001D3D; border: 1px solid #003566; border-radius: 20px 20px 20px 0px; }
-        .chat-bubble-user { background: #0077B6; border-radius: 20px 20px 0px 20px; }
-        .electric-blue { color: #00B4D8; }
-        .bg-navy { background-color: #000814; }
+        body { background-color: #000814; color: white; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(0, 29, 61, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(0, 84, 153, 0.3); }
+        .electric-blue-glow { box-shadow: 0 0 20px rgba(0, 180, 216, 0.3); }
+        .ai-bubble { background: #001D3D; border: 1px solid #003566; border-radius: 20px 20px 20px 0px; }
+        .user-bubble { background: #0077B6; border-radius: 20px 20px 0px 20px; }
     </style>
 </head>
-<body class="flex flex-col h-screen">
+<body class="flex flex-col h-screen overflow-hidden">
 
-    <!-- Header -->
-    <header class="p-4 border-b border-blue-900/30 flex items-center gap-3">
-        <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bot"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
-        </div>
-        <h1 class="text-xl font-bold italic text-white">N-AI <span class="electric-blue">Chat</span></h1>
-    </header>
-
-    <!-- Chat Area -->
-    <main id="chat-window" class="flex-1 overflow-y-auto p-4 space-y-4">
-        <!-- Message AI -->
-        <div class="flex justify-start">
-            <div class="chat-bubble-ai max-w-[85%] p-4 text-sm">
-                Salama! N-AI Chat ity. Inona no azo ampiana anao?
+    <!-- Top Navigation -->
+    <nav class="p-4 glass flex justify-between items-center z-50">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="white" stroke-width="2" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
             </div>
+            <span class="font-bold tracking-widest text-sm">N-AI <span class="text-blue-400">PRO</span></span>
+        </div>
+        <select id="model-select" class="bg-transparent text-xs border border-blue-900 rounded px-2 py-1 outline-none text-blue-300">
+            <option value="luna">GPT-Luna 5.6 (Code/Logic)</option>
+            <option value="image">DALL-E 3 (Image Gen)</option>
+        </select>
+    </nav>
+
+    <!-- Content Area -->
+    <main id="display-area" class="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
+        <div class="ai-bubble max-w-[90%] p-4 text-sm leading-relaxed">
+            Salama! N-AI Chat eto. Ny motera **GPT-Luna 5.6** no miasa ho an'ny coding. 
+            Afaka mifidy "Image Gen" koa ianao eo ambony raha hamorona sary.
         </div>
     </main>
 
-    <!-- Input Area -->
-    <footer class="p-4 bg-navy border-t border-blue-900/20">
-        <div class="flex gap-2 max-w-4xl mx-auto">
-            <input id="user-input" type="text" placeholder="Manontania eto..." 
-                class="flex-1 bg-[#001D3D] border border-blue-900/50 rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
-            <button onclick="sendMessage()" class="bg-blue-600 p-3 rounded-full hover:bg-blue-500 transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    <!-- Floating Input -->
+    <div class="fixed bottom-0 w-full p-4 glass">
+        <div class="max-w-4xl mx-auto flex gap-2">
+            <textarea id="main-input" rows="1" placeholder="Soraty ny baiko..." 
+                class="flex-1 bg-[#000814] border border-blue-900/50 rounded-2xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm resize-none"></textarea>
+            <button onclick="handleAction()" class="bg-blue-600 w-12 h-12 rounded-2xl flex items-center justify-center electric-blue-glow hover:bg-blue-500">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" stroke-width="2" fill="none"><line x1="22" y1="2" x2="11" y2="13"></polygon><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
             </button>
         </div>
-    </footer>
+    </div>
 
     <script>
-        const chatWindow = document.getElementById('chat-window');
-        const userInput = document.getElementById('user-input');
+        const displayArea = document.getElementById('display-area');
+        const mainInput = document.getElementById('main-input');
+        const modelSelect = document.getElementById('model-select');
 
-        async function sendMessage() {
-            const text = userInput.value.trim();
-            if (!text) return;
+        async function handleAction() {
+            const prompt = mainInput.value.trim();
+            if (!prompt) return;
 
             // Fampisehoana ny hafatrao
-            appendMessage('user', text);
-            userInput.value = '';
+            appendUI('user', prompt);
+            mainInput.value = '';
 
-            // Eto no asiana ny fiantsoana ny AI (mila API Key ianao eto)
-            // Ho solon'izay dia manao simulation valiny aloha isika
-            setTimeout(() => {
-                appendMessage('ai', "Miala tsiny, mila ampidirina ny API Key vao afaka mamaly marina aho.");
-            }, 1000);
+            const mode = modelSelect.value;
+
+            if (mode === 'image') {
+                appendUI('ai', 'Mamorona ny sary... (Generating Image 2/2)');
+                // Eto no asiana function fetch mankany amin'ny Image API any aoriana
+            } else {
+                appendUI('ai', 'GPT-Luna 5.6 dia mandinika ny codenao...');
+                // Eto no asiana function fetch mankany amin'ny GPT-Luna API
+            }
         }
 
-        function appendMessage(role, text) {
+        function appendUI(role, content) {
             const div = document.createElement('div');
             div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-            div.innerHTML = `
-                <div class="${role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'} max-w-[85%] p-4 text-sm">
-                    ${text}
-                </div>
-            `;
-            chatWindow.appendChild(div);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
+            
+            if (role === 'ai' && content.includes('Image')) {
+                div.innerHTML = `<div class="ai-bubble p-2 w-64 h-64 flex items-center justify-center text-xs text-blue-300 italic border-dashed border-2 border-blue-900">
+                    Sary (Placeholder)
+                </div>`;
+            } else {
+                div.innerHTML = `<div class="${role === 'user' ? 'user-bubble' : 'ai-bubble'} max-w-[90%] p-4 text-sm shadow-xl">
+                    ${content}
+                </div>`;
+            }
+            
+            displayArea.appendChild(div);
+            displayArea.scrollTop = displayArea.scrollHeight;
         }
     </script>
 </body>
-              </html>
+    </html>
