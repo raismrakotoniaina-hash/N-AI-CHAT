@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N-AI Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #000814; color: white; }
+        .chat-bubble-ai { background: #001D3D; border: 1px solid #003566; border-radius: 20px 20px 20px 0px; }
+        .chat-bubble-user { background: #0077B6; border-radius: 20px 20px 0px 20px; }
+        .electric-blue { color: #00B4D8; }
+        .bg-navy { background-color: #000814; }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+
+    <!-- Header -->
+    <header class="p-4 border-b border-blue-900/30 flex items-center gap-3">
+        <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bot"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+        </div>
+        <h1 class="text-xl font-bold italic text-white">N-AI <span class="electric-blue">Chat</span></h1>
+    </header>
+
+    <!-- Chat Area -->
+    <main id="chat-window" class="flex-1 overflow-y-auto p-4 space-y-4">
+        <!-- Message AI -->
+        <div class="flex justify-start">
+            <div class="chat-bubble-ai max-w-[85%] p-4 text-sm">
+                Salama! N-AI Chat ity. Inona no azo ampiana anao?
+            </div>
+        </div>
+    </main>
+
+    <!-- Input Area -->
+    <footer class="p-4 bg-navy border-t border-blue-900/20">
+        <div class="flex gap-2 max-w-4xl mx-auto">
+            <input id="user-input" type="text" placeholder="Manontania eto..." 
+                class="flex-1 bg-[#001D3D] border border-blue-900/50 rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
+            <button onclick="sendMessage()" class="bg-blue-600 p-3 rounded-full hover:bg-blue-500 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        const chatWindow = document.getElementById('chat-window');
+        const userInput = document.getElementById('user-input');
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // Fampisehoana ny hafatrao
+            appendMessage('user', text);
+            userInput.value = '';
+
+            // Eto no asiana ny fiantsoana ny AI (mila API Key ianao eto)
+            // Ho solon'izay dia manao simulation valiny aloha isika
+            setTimeout(() => {
+                appendMessage('ai', "Miala tsiny, mila ampidirina ny API Key vao afaka mamaly marina aho.");
+            }, 1000);
+        }
+
+        function appendMessage(role, text) {
+            const div = document.createElement('div');
+            div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+            div.innerHTML = `
+                <div class="${role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'} max-w-[85%] p-4 text-sm">
+                    ${text}
+                </div>
+            `;
+            chatWindow.appendChild(div);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+    </script>
+</body>
+              </html>
