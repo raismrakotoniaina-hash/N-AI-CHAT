@@ -1,4 +1,6 @@
-# N-AI Chat 🤖
+### 🧠 AI Engines
+- **GPT-Luna 5.6:** Motera manokana ho an'ny asa sarotra sy ny fanoratana code matanjaka.
+- **Image Gen (OpenAI DALL-E 3):** Fitaovana mamorona sary avo lenta (2 images setup).# N-AI Chat 🤖
 
 N-AI Chat dia fampiharana (web app) minimalist sy arifomba, natao hifampiresahana amin'ny AI. Ity tetikasa ity dia namboarina manokana ho an'ny fitaovana finday (mobile-first development).
 
