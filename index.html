@@ -2,92 +2,247 @@
 <html lang="mg">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>N-AI Chat & Image</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>N-AI Pro | Luna 5.6 & Avatar Lab</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #000814; color: white; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(0, 29, 61, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(0, 84, 153, 0.3); }
-        .electric-blue-glow { box-shadow: 0 0 20px rgba(0, 180, 216, 0.3); }
-        .ai-bubble { background: #001D3D; border: 1px solid #003566; border-radius: 20px 20px 20px 0px; }
-        .user-bubble { background: #0077B6; border-radius: 20px 20px 0px 20px; }
+        :root {
+            --navy: #000814;
+            --electric-blue: #00B4D8;
+            --deep-blue: #001D3D;
+        }
+        body { 
+            background-color: var(--navy); 
+            color: #e2e8f0; 
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .glass-header { 
+            background: rgba(0, 8, 20, 0.9); 
+            backdrop-filter: blur(15px); 
+            border-bottom: 1px solid rgba(0, 180, 216, 0.2); 
+        }
+        .chat-area { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 20px;
+            background: radial-gradient(circle at top right, #001d3d 0%, #000814 60%);
+        }
+        .ai-bubble { 
+            background: var(--deep-blue); 
+            border: 1px solid rgba(0, 119, 182, 0.3); 
+            border-radius: 20px 20px 20px 4px; 
+            max-width: 88%;
+            padding: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .user-bubble { 
+            background: linear-gradient(135deg, #0077B6 0%, #00B4D8 100%); 
+            border-radius: 20px 20px 4px 20px; 
+            max-width: 88%;
+            padding: 15px;
+            margin-left: auto;
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 119, 182, 0.3);
+        }
+        .avatar-frame {
+            border: 2px solid var(--electric-blue);
+            padding: 4px;
+            border-radius: 15px;
+            background: #000;
+            box-shadow: 0 0 20px rgba(0, 180, 216, 0.5);
+        }
+        .input-bar { 
+            background: rgba(0, 29, 61, 0.8); 
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0, 180, 216, 0.2);
+            padding: 15px 15px 30px 15px;
+        }
+        .btn-send {
+            background: var(--electric-blue);
+            transition: all 0.3s ease;
+        }
+        .btn-send:active { transform: scale(0.9); }
+        .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; margin-right: 5px; box-shadow: 0 0 10px #10b981; }
+        
+        /* Custom Loading Animation */
+        .typing-dot { width: 6px; height: 6px; background: var(--electric-blue); border-radius: 50%; animation: typing 1.4s infinite; }
+        @keyframes typing { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
     </style>
 </head>
-<body class="flex flex-col h-screen overflow-hidden">
+<body>
 
     <!-- Top Navigation -->
-    <nav class="p-4 glass flex justify-between items-center z-50">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <svg viewBox="0 0 24 24" width="18" height="18" stroke="white" stroke-width="2" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    <nav class="glass-header sticky top-0 z-50 p-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-900/40">
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="white" stroke-width="2.5" fill="none"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
             </div>
-            <span class="font-bold tracking-widest text-sm">N-AI <span class="text-blue-400">PRO</span></span>
+            <div>
+                <h1 class="text-sm font-black tracking-widest text-white leading-none">N-AI <span class="text-cyan-400">PRO</span></h1>
+                <div class="flex items-center mt-1"><span class="status-dot"></span><span class="text-[9px] text-blue-300 font-bold tracking-tighter uppercase">Luna 5.6 Engine</span></div>
+            </div>
         </div>
-        <select id="model-select" class="bg-transparent text-xs border border-blue-900 rounded px-2 py-1 outline-none text-blue-300">
-            <option value="luna">GPT-Luna 5.6 (Code/Logic)</option>
-            <option value="image">DALL-E 3 (Image Gen)</option>
-        </select>
+        <div class="flex gap-2">
+            <select id="mode-select" class="bg-[#000814] text-[10px] border border-blue-900 rounded-lg px-2 py-1.5 outline-none text-cyan-300 font-bold">
+                <option value="chat">Luna 5.6 (Code/Search)</option>
+                <option value="avatar">Avatar Lab (Consistent)</option>
+            </select>
+            <button onclick="clearMemory()" class="p-2 bg-red-950/30 rounded-lg text-red-500">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2.5"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+            </button>
+        </div>
     </nav>
 
-    <!-- Content Area -->
-    <main id="display-area" class="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
-        <div class="ai-bubble max-w-[90%] p-4 text-sm leading-relaxed">
-            Salama! N-AI Chat eto. Ny motera **GPT-Luna 5.6** no miasa ho an'ny coding. 
-            Afaka mifidy "Image Gen" koa ianao eo ambony raha hamorona sary.
+    <!-- Main Chat Window -->
+    <main id="chat-window" class="chat-area space-y-6">
+        <!-- AI Welcome Message -->
+        <div class="flex flex-col gap-2 items-start">
+            <div class="ai-bubble text-sm leading-relaxed text-blue-50">
+                Salama! Vonona ny **GPT-Luna 5.6** sy ny **Avatar Lab**. 
+                <br><br>
+                <ul class="list-disc ml-4 text-[12px] text-cyan-400 space-y-1">
+                    <li>Mikaroka amin'ny Web (Search)</li>
+                    <li>Mitahiry endrika Avatar iray (Consistency)</li>
+                    <li>Famakafakana Code sarotra</li>
+                </ul>
+            </div>
+            <span class="text-[9px] text-blue-800 ml-2 font-bold uppercase tracking-widest">System Ready</span>
         </div>
     </main>
 
-    <!-- Floating Input -->
-    <div class="fixed bottom-0 w-full p-4 glass">
-        <div class="max-w-4xl mx-auto flex gap-2">
-            <textarea id="main-input" rows="1" placeholder="Soraty ny baiko..." 
-                class="flex-1 bg-[#000814] border border-blue-900/50 rounded-2xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm resize-none"></textarea>
-            <button onclick="handleAction()" class="bg-blue-600 w-12 h-12 rounded-2xl flex items-center justify-center electric-blue-glow hover:bg-blue-500">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" stroke-width="2" fill="none"><line x1="22" y1="2" x2="11" y2="13"></polygon><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+    <!-- Footer Input Bar -->
+    <footer class="input-bar">
+        <div class="max-w-4xl mx-auto flex items-end gap-3">
+            <div class="flex-1 relative">
+                <textarea id="user-input" rows="1" 
+                    placeholder="Manontania na mamoròna avatar..." 
+                    class="w-full bg-[#000814] border border-blue-900/50 rounded-2xl px-5 py-4 focus:outline-none focus:border-cyan-500 text-[14px] text-white resize-none max-h-40 shadow-inner transition-all"
+                    oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
+            </div>
+            
+            <button onclick="handleSubmit()" id="send-btn" 
+                class="btn-send w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-cyan-900/20">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="white" stroke-width="2.5" fill="none"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
             </button>
         </div>
-    </div>
+    </footer>
 
     <script>
-        const displayArea = document.getElementById('display-area');
-        const mainInput = document.getElementById('main-input');
-        const modelSelect = document.getElementById('model-select');
+        // CONFIGURATION
+        let WORKER_URL = localStorage.getItem('worker_url') || "";
+        if (!WORKER_URL) {
+            WORKER_URL = prompt("Ampidiro ny Cloudflare Worker URL:");
+            if (WORKER_URL) localStorage.setItem('worker_url', WORKER_URL);
+        }
 
-        async function handleAction() {
-            const prompt = mainInput.value.trim();
-            if (!prompt) return;
+        let chatHistory = JSON.parse(localStorage.getItem('nai_pro_history_v2')) || [];
+        const chatWindow = document.getElementById('chat-window');
+        const userInput = document.getElementById('user-input');
 
-            // Fampisehoana ny hafatrao
-            appendUI('user', prompt);
-            mainInput.value = '';
+        window.onload = () => {
+            chatHistory.forEach(msg => appendMessage(msg.role, msg.content, false));
+        };
 
-            const mode = modelSelect.value;
+        async function handleSubmit() {
+            const content = userInput.value.trim();
+            if (!content || !WORKER_URL) return;
 
-            if (mode === 'image') {
-                appendUI('ai', 'Mamorona ny sary... (Generating Image 2/2)');
-                // Eto no asiana function fetch mankany amin'ny Image API any aoriana
-            } else {
-                appendUI('ai', 'GPT-Luna 5.6 dia mandinika ny codenao...');
-                // Eto no asiana function fetch mankany amin'ny GPT-Luna API
+            const currentMode = document.getElementById('mode-select').value;
+            
+            // Fanehoana ny hafatrao
+            appendMessage('user', content);
+            saveToHistory('user', content);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+
+            // Loading state
+            const loadingId = "loading-" + Date.now();
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = loadingId;
+            loadingDiv.className = "flex flex-col gap-2 items-start";
+            loadingDiv.innerHTML = `
+                <div class="ai-bubble flex gap-2 items-center">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot" style="animation-delay: 0.2s"></div>
+                    <div class="typing-dot" style="animation-delay: 0.4s"></div>
+                </div>
+            `;
+            chatWindow.appendChild(loadingDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            try {
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: content,
+                        mode: currentMode,
+                        history: chatHistory.slice(-6) // Mandefa context fohy ho an'ny memory
+                    })
+                });
+
+                const data = await response.json();
+                document.getElementById(loadingId).remove();
+
+                if (data.reply) {
+                    appendMessage('assistant', data.reply);
+                    saveToHistory('assistant', data.reply);
+                }
+            } catch (err) {
+                document.getElementById(loadingId).remove();
+                appendMessage('assistant', "❌ Olana: Hamarino raha mandeha ny Cloudflare Worker-nao.");
             }
         }
 
-        function appendUI(role, content) {
-            const div = document.createElement('div');
-            div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+        function appendMessage(role, text, animate = true) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex flex-col gap-1 ${role === 'user' ? 'items-end' : 'items-start'} ${animate ? 'opacity-0 translate-y-4' : ''} transition-all duration-500`;
             
-            if (role === 'ai' && content.includes('Image')) {
-                div.innerHTML = `<div class="ai-bubble p-2 w-64 h-64 flex items-center justify-center text-xs text-blue-300 italic border-dashed border-2 border-blue-900">
-                    Sary (Placeholder)
-                </div>`;
+            let htmlContent = "";
+            // Logic hijerena raha URL na sary (Avatar)
+            if (text.startsWith('http') && (text.includes('openai') || text.includes('worker'))) {
+                htmlContent = `
+                    <div class="avatar-frame w-64">
+                        <img src="${text}" class="rounded-xl w-full h-auto shadow-inner" alt="N-AI Avatar">
+                        <div class="p-2 text-center">
+                            <span class="text-[9px] font-bold text-cyan-400 uppercase tracking-tighter">Avatar Consistency Locked</span>
+                        </div>
+                    </div>`;
             } else {
-                div.innerHTML = `<div class="${role === 'user' ? 'user-bubble' : 'ai-bubble'} max-w-[90%] p-4 text-sm shadow-xl">
-                    ${content}
-                </div>`;
+                htmlContent = `
+                    <div class="${role === 'user' ? 'user-bubble' : 'ai-bubble'} text-[14px] leading-relaxed">
+                        ${text.replace(/\n/g, '<br>')}
+                    </div>`;
             }
-            
-            displayArea.appendChild(div);
-            displayArea.scrollTop = displayArea.scrollHeight;
+
+            wrapper.innerHTML = `
+                ${htmlContent}
+                <span class="text-[8px] text-blue-900 font-bold mx-2 uppercase mt-1">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+            `;
+
+            chatWindow.appendChild(wrapper);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            if(animate) setTimeout(() => wrapper.className = wrapper.className.replace('opacity-0 translate-y-4', 'opacity-100 translate-y-0'), 50);
+        }
+
+        function saveToHistory(role, content) {
+            chatHistory.push({ role, content });
+            if (chatHistory.length > 50) chatHistory.shift();
+            localStorage.setItem('nai_pro_history_v2', JSON.stringify(chatHistory));
+        }
+
+        function clearMemory() {
+            if(confirm("Hafana daholo ny resaka sy ny Avatar Memory?")) {
+                localStorage.removeItem('nai_pro_history_v2');
+                location.reload();
+            }
         }
     </script>
 </body>
